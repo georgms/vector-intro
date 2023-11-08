@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "vector-intro"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "vector_intro"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+sentence-transformers = "^2.2.2"
+torch = "^2.1.0"
+matplotlib = "^3.8.1"
+pandas = "^2.1.2"
+jupyterlab-rise = "^0.41.0"
+adjusttext = "^0.8"
+jupyter = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
