@@ -2669,6 +2669,20 @@ files = [
 ]
 
 [[package]]
+name = "rise"
+version = "5.7.1"
+description = "Reveal.js - Jupyter/IPython Slideshow Extension"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
+files = [
+    {file = "rise-5.7.1-py2.py3-none-any.whl", hash = "sha256:df8ce9f0e575d334b27ff40a1f91a4c78d9f7b4995858bb81185ceeaf98eae3a"},
+    {file = "rise-5.7.1.tar.gz", hash = "sha256:641db777cb907bf5e6dc053098d7fd213813fa9a946542e52b900eb7095289a6"},
+]
+
+[package.dependencies]
+notebook = ">=6.0"
+
+[[package]]
 name = "rpds-py"
 version = "0.12.0"
 description = "Python bindings to Rust's persistent data structures (rpds)"
@@ -3662,4 +3676,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "0e26473389d84c0a96969fa806927062b44bd61a7f12834c7ba714bb3fb02a1b"
+content-hash = "56a821b572073d0cc324dd1073e220bb53a0a4ee75ca4b015bb985c009ec8377"

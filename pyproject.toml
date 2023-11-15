@@ -18,16 +18,19 @@ torchaudio = "^2.1.0"
 scikit-learn = "^1.3.2"
 funcy = "^2.0"
 sentence-transformers = "^2.2.2"
-jupyterlab-rise = "^0.41.0"
 adjusttext = "^0.8"
 bson = "^0.5.10"
 annoy = "^1.17.3" # maybe poetry run arch -arm64 python3 -m pip install annoy for mac
+matplotlib = "^3.8.1"
+rise = "^5.7.1"
+jupyterlab-rise = "^0.41.0"
 
 [tool.poetry.group.linting.dependencies]
 black = { version = "^23.10.1", extras = ["jupyter"] }
 isort = "^5.12.0"
 
-
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core"]

@@ -13,34 +13,6 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 
-def get_merchant_products(merchant: str) -> pd.DataFrame:
-    """
-    Get all products for a merchant
-    interesting_col are a subset of:
-    ['_id', 'merchant', 'productId', 'availability', 'brand', 'category',
-       'categoryIds', 'created', 'customFields', 'description', 'gtin',
-       'idBlacklisted', 'imageUrl', 'inventoryLevel', 'listPrice', 'name',
-       'price', 'priceCurrencyCode', 'skus', 'tags1', 'tags2', 'thumbUrl',
-       'unitPricingMeasure', 'unitPricingUnit', 'updated', 'url',
-       'supplierCost', 'alternateImageUrls', 'datePublished']
-
-    :param merchant:
-    :return:
-    """
-    p_path = Path(f"data/{merchant}_products.pkl")
-    products = pd.read_pickle(p_path)
-    interesting_col = [
-        "merchant",
-        "productId",
-        "name",
-        "description",
-        "brand",
-        "category",
-        "listPrice",
-    ]
-    return products.loc[:, interesting_col]
-
-
 def get_torch_device_name() -> str:
     if torch.cuda.is_available():
         device_name = "cuda"
@@ -84,23 +56,45 @@ def get_html_image(merchant, p, width=50):
 
 
 def color_embedings_df(
-    df: pd.DataFrame, color_col: str = None, hover_data: list = None
+    df: pd.DataFrame,
+    color_col: str = None,
+    hover_data: list = None,
+    dimensions: int = 2,
 ):
-    pca = PCA(n_components=3)
+    if dimensions not in [2, 3]:
+        raise ValueError("'dimensions' should be either 2 or 3")
+
+    pca = PCA(n_components=dimensions)
     embeddings_pca = pd.DataFrame(
-        pca.fit_transform(df["embeddings"].to_list()), columns=["x", "y", "z"]
+        pca.fit_transform(df["embeddings"].to_list()), columns=list("xyz")[:dimensions]
     )
     if color_col is not None:
         embeddings_pca[color_col] = df.loc[:, color_col].values
     if hover_data is not None:
         for col in hover_data:
             embeddings_pca[col] = df.loc[:, col].values
-    fig = px.scatter_3d(
-        embeddings_pca, x="x", y="y", z="z", color=color_col, hover_data=hover_data,
-    )
+
+    if dimensions == 2:
+        fig = px.scatter(
+            embeddings_pca,
+            x="x",
+            y="y",
+            color=color_col,
+            hover_data=hover_data,
+        )
+    elif dimensions == 3:
+        fig = px.scatter_3d(
+            embeddings_pca,
+            x="x",
+            y="y",
+            z="z",
+            color=color_col,
+            hover_data=hover_data,
+        )
+    fig.update_layout(title=f"Word Embeddings {dimensions}D Visualization with Color")
+
     # reduce size of the points
-    fig.update_traces(marker=dict(size=2))
-    fig.update_layout(title="Word Embeddings 3D Visualization with Color")
+    #fig.update_traces(marker=dict(size=2))
     return fig
 
 
