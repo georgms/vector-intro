@@ -50,6 +50,31 @@ def get_thumb_image_url(merchant_id: str, product_id: str) -> str:
     return urlunparse((scheme, netloc, path, "", "", ""))
 
 
+def display_images_and_names(df, merchant_id, header_text=None):
+    html = "<table style='width:100%'>"
+
+    if header_text:
+        html += (f"<tr>"
+                 f"<th colspan='{len(df)}' "
+                 f"style='text-align:left'>"
+                 f"<h2 style='max-width:100%;"
+                 f"overflow-wrap: break-word'>{header_text}</h2>"
+                 f"</th></tr>")
+
+    html += "<tr>"
+
+    for index, row in df.iterrows():
+        image_url = get_thumb_image_url(merchant_id, row["productId"])
+        html += (
+            f"<td style='width:25%; text-align:center'>"
+            f"<img src='{image_url}' style='max-width:100%' title='{row['name']}'>"
+            f"<br>{row['name']}"
+            f"</td>"
+        )
+    html += "</tr></table>"
+    display(HTML(html))
+
+
 def get_html_image(merchant, p, width=50):
     link = get_thumb_image_url(merchant, p)
     return f'<img src="{link}" style="width: {width}%; height: auto;">'
@@ -94,7 +119,7 @@ def color_embedings_df(
     fig.update_layout(title=f"Word Embeddings {dimensions}D Visualization with Color")
 
     # reduce size of the points
-    #fig.update_traces(marker=dict(size=2))
+    # fig.update_traces(marker=dict(size=2))
     return fig
 
 
