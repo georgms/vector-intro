@@ -12,6 +12,8 @@ from IPython.display import display
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
+import plotly.graph_objects as go
+
 
 def get_torch_device_name() -> str:
     if torch.cuda.is_available():
@@ -54,12 +56,14 @@ def display_images_and_names(df, merchant_id, header_text=None):
     html = "<table style='width:100%'>"
 
     if header_text:
-        html += (f"<tr>"
-                 f"<th colspan='{len(df)}' "
-                 f"style='text-align:left'>"
-                 f"<h2 style='max-width:100%;"
-                 f"overflow-wrap: break-word'>{header_text}</h2>"
-                 f"</th></tr>")
+        html += (
+            f"<tr>"
+            f"<th colspan='{len(df)}' "
+            f"style='text-align:left'>"
+            f"<h2 style='max-width:100%;"
+            f"overflow-wrap: break-word'>{header_text}</h2>"
+            f"</th></tr>"
+        )
 
     html += "<tr>"
 
@@ -85,41 +89,83 @@ def color_embedings_df(
     color_col: str = None,
     hover_data: list = None,
     dimensions: int = 2,
+    add_vectors: bool = False,
 ):
+    embeddings_pca = _get_transform_embedding_df(color_col, df, dimensions, hover_data)
+    scatter_kwargs = dict(
+        x="x",
+        y="y",
+        z="z",
+        color=color_col,
+        hover_data=hover_data,
+    )
+
+    scatter = px.scatter_3d
+    if dimensions == 2:
+        scatter_kwargs.pop("z")
+        scatter = px.scatter
+    fig = scatter(embeddings_pca, **scatter_kwargs)
+    if add_vectors:
+        fig = _plot_vectors(fig, embeddings_pca, dimensions)
+    helper = embeddings_pca.loc[:, ["x", "y"]]
+    min_helper = helper.apply(min).min() - 0.01
+    max_helper = helper.apply(max).max() + 0.01
+    layout = {f"{x}axis": {"range": [min_helper, max_helper]} for x in helper.columns}
+
+    fig.update_yaxes(scaleanchor="x", scaleratio=1)
+    fig.update_xaxes(scaleanchor="y", scaleratio=1)
+    fig.update_layout(
+        title=f"Word Embeddings {dimensions}D Visualization with Color",
+        autosize=False,
+        **layout,
+    )
+    return fig
+
+
+def _get_transform_embedding_df(color_col, df, dimensions, hover_data):
     if dimensions not in [2, 3]:
         raise ValueError("'dimensions' should be either 2 or 3")
-
-    pca = PCA(n_components=dimensions)
-    embeddings_pca = pd.DataFrame(
-        pca.fit_transform(df["embeddings"].to_list()), columns=list("xyz")[:dimensions]
-    )
+    embed_array = df["embeddings"].to_list()
+    check = len(embed_array[0]) != dimensions
+    if check:
+        pca = PCA(n_components=dimensions)
+        embed_array = pca.fit_transform(embed_array)
+    embeddings_pca = pd.DataFrame(embed_array, columns=list("xyz")[:dimensions])
     if color_col is not None:
         embeddings_pca[color_col] = df.loc[:, color_col].values
     if hover_data is not None:
         for col in hover_data:
             embeddings_pca[col] = df.loc[:, col].values
+    return embeddings_pca
 
-    if dimensions == 2:
-        fig = px.scatter(
-            embeddings_pca,
-            x="x",
-            y="y",
-            color=color_col,
-            hover_data=hover_data,
-        )
-    elif dimensions == 3:
-        fig = px.scatter_3d(
-            embeddings_pca,
-            x="x",
-            y="y",
-            z="z",
-            color=color_col,
-            hover_data=hover_data,
-        )
-    fig.update_layout(title=f"Word Embeddings {dimensions}D Visualization with Color")
 
-    # reduce size of the points
-    # fig.update_traces(marker=dict(size=2))
+def _plot_vectors(fig, embeddings_pca, dimensions):
+    scatters = []
+    Scatter = go.Scatter3d if dimensions == 3 else go.Scatter
+
+    for i, row in embeddings_pca.iterrows():
+        # Create a list with dimension number of zeroes
+
+        coordinates = {
+            dimension: [0, row[dimension]] for dimension in ["x", "y", "z"][:dimensions]
+        }
+
+        # Add dashed arrow from origin to the point
+        scatters.append(
+            Scatter(
+                **{
+                    **coordinates,
+                    **dict(
+                        mode="lines",
+                        line=dict(color="black", width=0.5, dash="dash"),
+                        marker=dict(size=0),
+                        showlegend=False,
+                    ),
+                }
+            )
+        )
+    fig.add_traces(scatters)
+
     return fig
 
 
