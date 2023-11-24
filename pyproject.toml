@@ -24,6 +24,7 @@ annoy = "^1.17.3" # maybe poetry run arch -arm64 python3 -m pip install annoy fo
 matplotlib = "^3.8.1"
 rise = "^5.7.1"
 jupyterlab-rise = "^0.41.0"
+jupyter-contrib-nbextensions = "^0.7.0"
 
 [tool.poetry.group.linting.dependencies]
 black = { version = "^23.10.1", extras = ["jupyter"] }
