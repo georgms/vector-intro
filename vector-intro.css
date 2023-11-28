@@ -1,0 +1,13 @@
+/* vector-intro.css */
+
+/* Füge das Firmenlogo in der oberen rechten Ecke ein */
+
+#rise-header {
+    margin: auto;
+    padding: 30px 100px 5px 30px;
+    position: fixed;
+    width: 85%;
+    background-image: url('Nosto_hr_magenta.svg');
+    background-repeat: no-repeat;
+    background-position: right top;
+}
