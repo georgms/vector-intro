@@ -76,7 +76,7 @@ def display_images_and_names(df, merchant_id, header_text=None):
             f"</td>"
         )
     html += "</tr></table>"
-    display(HTML(html))
+    return html
 
 
 def get_html_image(merchant, p, width=50):
