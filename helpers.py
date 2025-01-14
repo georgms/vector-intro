@@ -1,18 +1,16 @@
-from pathlib import Path
 from typing import List
 from urllib.parse import quote_plus, urlunparse
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import torch
 from annoy import AnnoyIndex
 from IPython.core.display import HTML
 from IPython.display import display
-from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN, KMeans
 from sklearn.decomposition import PCA
-
-import plotly.graph_objects as go
 
 
 def get_torch_device_name() -> str:
@@ -31,7 +29,9 @@ def _display_url_images(image_urls, min_width=150, max_columns=6):
     html = f'<div style="display: flex; flex-wrap: wrap;">'
     for url in image_urls:
         html += f'<div style="flex: 1; min-width: {min_width}px; max-width: {100 / columns:.2f}; padding: 10px;">'
-        html += f'<img src="{url}" style="width: 100%; height: auto;">'
+        html += (
+            f'<img src="{url}" style="width: 100%; height: auto;">'
+        )
         html += f"</div>"
     html += "</div>"
     # Display the HTML
@@ -39,16 +39,25 @@ def _display_url_images(image_urls, min_width=150, max_columns=6):
 
 
 def display_product_images(
-    product_ids: List[str], merchant: str, min_width=150, max_columns=4
+    product_ids: List[str],
+    merchant: str,
+    min_width=150,
+    max_columns=4,
 ):
-    image_urls = [get_thumb_image_url(merchant, p) for p in product_ids]
-    _display_url_images(image_urls, min_width=min_width, max_columns=max_columns)
+    image_urls = [
+        get_thumb_image_url(merchant, p) for p in product_ids
+    ]
+    _display_url_images(
+        image_urls, min_width=min_width, max_columns=max_columns
+    )
 
 
 def get_thumb_image_url(merchant_id: str, product_id: str) -> str:
     scheme = "https"
     netloc = "thumbs.nosto.com"
-    path = f"quick/{quote_plus(merchant_id)}/8/{quote_plus(product_id)}"
+    path = (
+        f"quick/{quote_plus(merchant_id)}/8/{quote_plus(product_id)}"
+    )
     return urlunparse((scheme, netloc, path, "", "", ""))
 
 
@@ -81,7 +90,9 @@ def display_images_and_names(df, merchant_id, header_text=None):
 
 def get_html_image(merchant, p, width=50):
     link = get_thumb_image_url(merchant, p)
-    return f'<img src="{link}" style="width: {width}%; height: auto;">'
+    return (
+        f'<img src="{link}" style="width: {width}%; height: auto;">'
+    )
 
 
 def color_embedings_df(
@@ -91,7 +102,9 @@ def color_embedings_df(
     dimensions: int = 2,
     add_vectors: bool = False,
 ):
-    embeddings_pca = _get_transform_embedding_df(color_col, df, dimensions, hover_data)
+    embeddings_pca = _get_transform_embedding_df(
+        color_col, df, dimensions, hover_data
+    )
     scatter_kwargs = dict(
         x="x",
         y="y",
@@ -110,7 +123,10 @@ def color_embedings_df(
     helper = embeddings_pca.loc[:, ["x", "y"]]
     min_helper = helper.apply(min).min() - 0.01
     max_helper = helper.apply(max).max() + 0.01
-    layout = {f"{x}axis": {"range": [min_helper, max_helper]} for x in helper.columns}
+    layout = {
+        f"{x}axis": {"range": [min_helper, max_helper]}
+        for x in helper.columns
+    }
 
     fig.update_yaxes(scaleanchor="x", scaleratio=1)
     fig.update_xaxes(scaleanchor="y", scaleratio=1)
@@ -122,7 +138,9 @@ def color_embedings_df(
     return fig
 
 
-def _get_transform_embedding_df(color_col, df, dimensions, hover_data):
+def _get_transform_embedding_df(
+    color_col, df, dimensions, hover_data
+):
     if dimensions not in [2, 3]:
         raise ValueError("'dimensions' should be either 2 or 3")
     embed_array = df["embeddings"].to_list()
@@ -130,7 +148,9 @@ def _get_transform_embedding_df(color_col, df, dimensions, hover_data):
     if check:
         pca = PCA(n_components=dimensions)
         embed_array = pca.fit_transform(embed_array)
-    embeddings_pca = pd.DataFrame(embed_array, columns=list("xyz")[:dimensions])
+    embeddings_pca = pd.DataFrame(
+        embed_array, columns=list("xyz")[:dimensions]
+    )
     if color_col is not None:
         embeddings_pca[color_col] = df.loc[:, color_col].values
     if hover_data is not None:
@@ -147,7 +167,8 @@ def _plot_vectors(fig, embeddings_pca, dimensions):
         # Create a list with dimension number of zeroes
 
         coordinates = {
-            dimension: [0, row[dimension]] for dimension in ["x", "y", "z"][:dimensions]
+            dimension: [0, row[dimension]]
+            for dimension in ["x", "y", "z"][:dimensions]
         }
 
         # Add dashed arrow from origin to the point
@@ -157,7 +178,9 @@ def _plot_vectors(fig, embeddings_pca, dimensions):
                     **coordinates,
                     **dict(
                         mode="lines",
-                        line=dict(color="black", width=0.5, dash="dash"),
+                        line=dict(
+                            color="black", width=0.5, dash="dash"
+                        ),
                         marker=dict(size=0),
                         showlegend=False,
                     ),
@@ -173,7 +196,9 @@ def calc_distance_matrix(index_ann: AnnoyIndex) -> pd.DataFrame:
     num_items = index_ann.get_n_items()
     num_neighbors = int(num_items / index_ann.get_n_trees() + 0.5)
     distance_df = pd.DataFrame(
-        np.nan, index=np.arange(num_items), columns=np.arange(num_items)
+        np.nan,
+        index=np.arange(num_items),
+        columns=np.arange(num_items),
     )
 
     for col in distance_df.columns:
