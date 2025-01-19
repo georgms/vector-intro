@@ -18,7 +18,6 @@ torchaudio = "^2.1.0"
 scikit-learn = "^1.3.2"
 funcy = "^2.0"
 sentence-transformers = "^2.2.2"
-adjusttext = "^0.8"
 bson = "^0.5.10"
 annoy = "^1.17.3" # maybe poetry run arch -arm64 python3 -m pip install annoy for mac
 matplotlib = "^3.8.1"
