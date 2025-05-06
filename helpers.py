@@ -98,7 +98,8 @@ def color_embedings_df(
         z="z",
         color=color_col,
         hover_data=hover_data,
-    )
+        category_orders={color_col: sorted(embeddings_pca[color_col].unique().astype(str))}
+)
 
     scatter = px.scatter_3d
     if dimensions == 2:
