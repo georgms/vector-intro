@@ -29,6 +29,8 @@ numpy = "^1.24.4"
 #with jupyter_contrib_nbextensions and rise and jupyterlab-rise
 nbconvert = { version = "^7.0.0", extras = ["pdf","webpdf","qtpdf","latex"] }
 ipython = "^8.31.0"
+umap-learn = "^0.5.7"
+hdbscan = "^0.8.40"
 
 [tool.poetry.group.linting.dependencies]
 black = { version = "^23.10.1", extras = ["jupyter"] }
