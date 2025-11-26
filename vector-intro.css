@@ -9,3 +9,26 @@
     background-repeat: no-repeat;
     background-position: right top;
 }
+
+/* 1. Basis-Font-Size hochsetzen */
+.reveal {
+  font-size: 150%;       /* oder 1.2em / 1.3em je nach Geschmack */
+}
+
+/* 2. Headings noch größer machen */
+.reveal h1 { font-size: 2.5em; }
+.reveal h2 { font-size: 2em; }
+.reveal h3 { font-size: 1.5em; }
+
+/* 3. Scrollen erlauben, wenn Inhalt zu lang ist */
+.reveal .slides section {
+  height: 100vh;         /* volle Viewport-Höhe */
+  overflow-y: auto !important;
+  padding: 2em;          /* etwas Innenabstand, damit Text nicht am Rand klebt */
+}
+
+/* 4. Codeblöcke etwas größer */
+.reveal pre,
+.reveal code {
+  font-size: 0.9em;
+}
